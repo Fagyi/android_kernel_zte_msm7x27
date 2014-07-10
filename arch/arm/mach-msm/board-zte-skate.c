@@ -942,7 +942,11 @@ static struct kgsl_device_platform_data kgsl_3d0_pdata = {
 	*/
 	.pwrlevel = {
 		{
+#ifdef CONFIG_KGSL_OVERCLOCK
+			.gpu_freq = 160000000,
+#else
 			.gpu_freq = 0,
+#endif
 			.bus_freq = 160000000,
 		},
 	},
