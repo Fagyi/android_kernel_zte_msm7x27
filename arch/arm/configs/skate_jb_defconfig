@@ -1617,6 +1617,7 @@ CONFIG_FB_CFB_IMAGEBLIT=y
 # CONFIG_FB_BACKLIGHT is not set
 # CONFIG_FB_MODE_HELPERS is not set
 # CONFIG_FB_TILEBLITTING is not set
+# CONFIG_FIX_CWM_DANCING is not set
 
 #
 # Frame buffer hardware drivers
