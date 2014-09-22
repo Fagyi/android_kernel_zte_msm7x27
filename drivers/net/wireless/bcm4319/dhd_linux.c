@@ -982,7 +982,7 @@ static void
 _dhd_set_multicast_list(dhd_info_t *dhd, int ifidx)
 {
 	struct net_device *dev;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 36)
         struct netdev_hw_addr *ha;
 #else
         struct dev_mc_list *mclist;
@@ -996,7 +996,7 @@ _dhd_set_multicast_list(dhd_info_t *dhd, int ifidx)
 
 	ASSERT(dhd && dhd->iflist[ifidx]);
 	dev = dhd->iflist[ifidx]->net;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 36)
         cnt = netdev_mc_count(dev);
 #else
         mclist = dev->mc_list;
