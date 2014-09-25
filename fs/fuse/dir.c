@@ -385,6 +385,9 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry, int mode,
 	if (fc->no_create)
 		return -ENOSYS;
 
+	if (flags & O_DIRECT)
+		return -EINVAL;
+
 	forget_req = fuse_get_req(fc);
 	if (IS_ERR(forget_req))
 		return PTR_ERR(forget_req);
@@ -639,19 +642,13 @@ static int fuse_unlink(struct inode *dir, struct dentry *entry)
 	fuse_put_request(fc, req);
 	if (!err) {
 		struct inode *inode = entry->d_inode;
-		struct fuse_inode *fi = get_fuse_inode(inode);
 
-		spin_lock(&fc->lock);
-		fi->attr_version = ++fc->attr_version;
 		/*
-		 * If i_nlink == 0 then unlink doesn't make sense, yet this can
-		 * happen if userspace filesystem is careless.  It would be
-		 * difficult to enforce correct nlink usage so just ignore this
-		 * condition here
+		 * Set nlink to zero so the inode can be cleared, if the inode
+		 * does have more links this will be discovered at the next
+		 * lookup/getattr.
 		 */
-		if (inode->i_nlink > 0)
-			drop_nlink(inode);
-		spin_unlock(&fc->lock);
+		clear_nlink(inode);
 		fuse_invalidate_attr(inode);
 		fuse_invalidate_attr(dir);
 		fuse_invalidate_entry_cache(entry);
@@ -762,17 +759,8 @@ static int fuse_link(struct dentry *entry, struct inode *newdir,
 	   will reflect changes in the backing inode (link count,
 	   etc.)
 	*/
-	if (!err) {
-		struct fuse_inode *fi = get_fuse_inode(inode);
-
-		spin_lock(&fc->lock);
-		fi->attr_version = ++fc->attr_version;
-		inc_nlink(inode);
-		spin_unlock(&fc->lock);
+	if (!err || err == -EINTR)
 		fuse_invalidate_attr(inode);
-	} else if (err == -EINTR) {
-		fuse_invalidate_attr(inode);
-	}
 	return err;
 }
 

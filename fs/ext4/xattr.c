@@ -458,7 +458,8 @@ static void ext4_xattr_update_super_block(handle_t *handle,
 
 	if (ext4_journal_get_write_access(handle, EXT4_SB(sb)->s_sbh) == 0) {
 		EXT4_SET_COMPAT_FEATURE(sb, EXT4_FEATURE_COMPAT_EXT_ATTR);
-		ext4_handle_dirty_super(handle, sb);
+		sb->s_dirt = 1;
+		ext4_handle_dirty_metadata(handle, NULL, EXT4_SB(sb)->s_sbh);
 	}
 }
 
@@ -1264,8 +1265,6 @@ retry:
 				    s_min_extra_isize) {
 					tried_min_extra_isize++;
 					new_extra_isize = s_min_extra_isize;
-					kfree(is); is = NULL;
-					kfree(bs); bs = NULL;
 					goto retry;
 				}
 				error = -1;
