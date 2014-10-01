@@ -600,6 +600,7 @@ DEFINE_INODE_EVENT(xfs_irele);
 DEFINE_INODE_EVENT(xfs_inode_pin);
 DEFINE_INODE_EVENT(xfs_inode_unpin);
 DEFINE_INODE_EVENT(xfs_inode_unpin_nowait);
+DEFINE_INODE_EVENT(xfs_evict_inode);
 
 /* the old xfs_itrace_entry tracer - to be replaced by s.th. in the VFS */
 DEFINE_INODE_EVENT(xfs_inode);
