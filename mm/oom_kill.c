@@ -71,7 +71,8 @@ static int has_intersects_mems_allowed(struct task_struct *tsk)
  *    of least surprise ... (be careful when you change it)
  */
 
-unsigned long badness(struct task_struct *p, unsigned long uptime)
+unsigned long badness(struct task_struct *p, struct mem_cgroup *mem,
+		      const nodemask_t *nodemask, unsigned long uptime)
 {
 	unsigned long points, cpu_time, run_time;
 	struct mm_struct *mm;
@@ -81,6 +82,8 @@ unsigned long badness(struct task_struct *p, unsigned long uptime)
 	unsigned long utime;
 	unsigned long stime;
 
+	if (oom_unkillable_task(p, mem, nodemask))
+		return 0;
 	if (oom_adj == OOM_DISABLE)
 		return 0;
 
@@ -301,7 +304,7 @@ static struct task_struct *select_bad_process(unsigned long *ppoints,
 		if (p->signal->oom_adj == OOM_DISABLE)
 			continue;
 
-		points = badness(p, uptime.tv_sec);
+		points = badness(p, mem, nodemask, uptime.tv_sec);
 		if (points > *ppoints || !chosen) {
 			chosen = p;
 			*ppoints = points;
